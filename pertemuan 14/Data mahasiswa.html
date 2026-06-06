@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugas Pertemuan 14 - Data Mahasiswa</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 30px; 
+            background-color: #f4f6f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 { 
+            color: #333; 
+            margin-bottom: 20px;
+        }
+        input { 
+            margin-bottom: 12px; 
+            padding: 10px; 
+            display: block; 
+            width: 100%; 
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button { 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        #btnTambah { 
+            background-color: #28a745; 
+            color: white; 
+        }
+        #btnUpdate { 
+            background-color: #007bff; 
+            color: white; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 30px; 
+        }
+        table, th, td { 
+            border: 1px solid #dee2e6; 
+        }
+        th, td { 
+            padding: 12px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #f8f9fa; 
+            color: #495057;
+        }
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+            margin-right: 5px;
+            padding: 6px 12px;
+        }
+        .btn-hapus {
+            background-color: #dc3545;
+            color: white;
+            padding: 6px 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Form Input Data Mahasiswa</h2>
+    
+    <input type="text" id="nim" placeholder="NIM (Nomor Induk Mahasiswa)">
+    <input type="text" id="nama" placeholder="Nama Lengkap">
+    <input type="text" id="jurusan" placeholder="Jurusan">
+    <input type="text" id="fakultas" placeholder="Fakultas">
+    
+    <button id="btnTambah" onclick="tambahData()">Tambah</button>
+    <button id="btnUpdate" onclick="simpanUpdate()" style="display:none;">Update Data</button>
+
+    <h2>Daftar Mahasiswa Terdaftar</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>NIM</th>
+                <th>Nama</th>
+                <th>Jurusan</th>
+                <th>Fakultas</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="tabelData">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // Wadah Array Object untuk menampung data mahasiswa
+    let dataMahasiswa = [];
+    
+    // Variabel penanda indeks data mana yang sedang diedit
+    let indexDiedit = null;
+
+    // 1. FUNGSI MENAMPILKAN DATA (READ)
+    function tampilkanData() {
+        const tbody = document.getElementById("tabelData");
+        tbody.innerHTML = ""; // Bersihkan tabel terlebih dahulu agar tidak menumpuk
+
+        dataMahasiswa.forEach((mhs, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${mhs.nim}</td>
+                    <td>${mhs.nama}</td>
+                    <td>${mhs.jurusan}</td>
+                    <td>${mhs.fakultas}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editData(${index})">Edit</button>
+                        <button class="btn-hapus" onclick="hapusData(${index})">Hapus</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // 2. FUNGSI TAMBAH DATA (CREATE)
+    function tambahData() {
+        const nim = document.getElementById("nim").value;
+        const nama = document.getElementById("nama").value;
+        const jurusan = document.getElementById("jurusan").value;
+        const fakultas = document.getElementById("fakultas").value;
+
+        // Validasi: pastikan semua kolom terisi
+        if(nim && nama && jurusan && fakultas) {
+            // Memasukkan data berupa format Object ke dalam Array
+            dataMahasiswa.push({ nim, nama, jurusan, fakultas });
+            
+            clearForm();
+            tampilkanData();
+        } else {
+            alert("Harap isi semua kolom input terlebih dahulu!");
+        }
+    }
+
+    // 3. FUNGSI HAPUS DATA (DELETE)
+    function hapusData(index) {
+        if(confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+            dataMahasiswa.splice(index, 1); // Menghapus 1 elemen berdasarkan indeksnya
+            tampilkanData();
+        }
+    }
+
+    // 4. FUNGSI EDIT DATA (Mengembalikan data tabel ke dalam kolom form input)
+    function editData(index) {
+        indexDiedit = index;
+        const mhs = dataMahasiswa[index];
+
+        // Masukkan data lama kembali ke dalam kolom input
+        document.getElementById("nim").value = mhs.nim;
+        document.getElementById("nama").value = mhs.nama;
+        document.getElementById("jurusan").value = mhs.jurusan;
+        document.getElementById("fakultas").value = mhs.fakultas;
+
+        // Tukar tampilan tombol: Sembunyikan Tambah, Munculkan Update
+        document.getElementById("btnTambah").style.display = "none";
+        document.getElementById("btnUpdate").style.display = "block";
+    }
+
+    // 5. FUNGSI SIMPAN UPDATE (UPDATE)
+    function simpanUpdate() {
+        if (indexDiedit !== null) {
+            // Ambil nilai baru dari form untuk menimpa objek pada indeks lama
+            dataMahasiswa[indexDiedit] = {
+                nim: document.getElementById("nim").value,
+                nama: document.getElementById("nama").value,
+                jurusan: document.getElementById("jurusan").value,
+                fakultas: document.getElementById("fakultas").value
+            };
+
+            clearForm();
+            
+            // Kembalikan tampilan tombol ke posisi semula
+            document.getElementById("btnTambah").style.display = "block";
+            document.getElementById("btnUpdate").style.display = "none";
+            
+            indexDiedit = null; // Reset indeks edit
+            tampilkanData(); // Refresh isi tabel
+        }
+    }
+
+    // FUNGSI PEMBANTU (Mereset/mengosongkan isi text input form)
+    function clearForm() {
+        document.getElementById("nim").value = "";
+        document.getElementById("nama").value = "";
+        document.getElementById("jurusan").value = "";
+        document.getElementById("fakultas").value = "";
+    }
+</script>
+
+</body>
+</html>
